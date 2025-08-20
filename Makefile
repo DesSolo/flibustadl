@@ -25,4 +25,4 @@ install-deps: \
 	.install-goreleaser
 
 release:
-	${LOCAL_BIN}/goreleaser release
+	${LOCAL_BIN}/goreleaser release --clean
