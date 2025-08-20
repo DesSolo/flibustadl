@@ -29,3 +29,6 @@ install-deps: \
 
 release: tag
 	${LOCAL_BIN}/goreleaser release --clean
+
+try-release:
+	${LOCAL_BIN}/goreleaser release --snapshot --clean
