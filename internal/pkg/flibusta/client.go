@@ -1,5 +1,7 @@
 package flibusta
 
+// <input type="checkbox" id=.*</a>
+
 import (
 	"context"
 	"fmt"
@@ -39,4 +41,13 @@ func (c *Client) do(req *http.Request, validStatusCode int) (*http.Response, err
 	}
 
 	return resp, nil
+}
+
+func (c *Client) fetch(ctx context.Context, uri string) (*http.Response, error) {
+	req, err := c.newRequest(ctx, http.MethodGet, uri, nil)
+	if err != nil {
+		return nil, fmt.Errorf("newRequest: %w", err)
+	}
+
+	return c.do(req, http.StatusOK)
 }

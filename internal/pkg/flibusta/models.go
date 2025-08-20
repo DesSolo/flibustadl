@@ -1,13 +1,13 @@
 package flibusta
 
 type Sequence struct {
-	Name string
-	URLs []string
+	Name     string
+	BookURLs []string
 }
 
 type Author struct {
-	Name string
-	URLs []string
+	Name     string
+	BookURLs []string
 }
 
 type Book struct {

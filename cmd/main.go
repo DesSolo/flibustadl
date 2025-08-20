@@ -38,20 +38,20 @@ func main() {
 
 	ctx := context.Background()
 
-	cl := flibusta.NewClient(uri.Scheme + "://" + uri.Host)
-
 	id, err := strconv.ParseUint(path.Base(uri.Path), 10, 64)
 	if err != nil {
 		log.Fatalf("failed to parse url: %v", err)
 	}
 
+	flClient := flibusta.NewClient(uri.Scheme + "://" + uri.Host)
+
 	switch path.Dir(uri.Path) {
 	case "/a":
-		if err := downloadAuthor(ctx, cl, id); err != nil {
+		if err := downloadAuthor(ctx, flClient, id); err != nil {
 			log.Fatalf("failed to download author: %v", err)
 		}
 	case "/sequence":
-		if err := downloadSequence(ctx, cl, id); err != nil {
+		if err := downloadSequence(ctx, flClient, id); err != nil {
 			log.Fatalf("download sequence failed: %v", err)
 		}
 
@@ -66,9 +66,9 @@ func downloadAuthor(ctx context.Context, cl *flibusta.Client, authorID uint64) e
 		return fmt.Errorf("failed to get author: %w", err)
 	}
 
-	slog.InfoContext(ctx, "processing author", "name", author.Name, "books", len(author.URLs))
+	slog.InfoContext(ctx, "processing author", "name", author.Name, "books", len(author.BookURLs))
 
-	return downloadBooks(ctx, cl, author.Name, author.URLs)
+	return downloadBooks(ctx, cl, author.Name, author.BookURLs)
 }
 
 func downloadSequence(ctx context.Context, client *flibusta.Client, sequenceID uint64) error {
@@ -77,9 +77,9 @@ func downloadSequence(ctx context.Context, client *flibusta.Client, sequenceID u
 		return fmt.Errorf("client.Sequence: %w", err)
 	}
 
-	slog.InfoContext(ctx, "processing sequence", "name", sequence.Name, "books", len(sequence.URLs))
+	slog.InfoContext(ctx, "processing sequence", "name", sequence.Name, "books", len(sequence.BookURLs))
 
-	return downloadBooks(ctx, client, sequence.Name, sequence.URLs)
+	return downloadBooks(ctx, client, sequence.Name, sequence.BookURLs)
 }
 
 func downloadBooks(ctx context.Context, client *flibusta.Client, root string, URLs []string) error {
@@ -94,7 +94,7 @@ func downloadBooks(ctx context.Context, client *flibusta.Client, root string, UR
 
 		book, err := client.Download(ctx, uri)
 		if err != nil {
-			log.Fatal(err)
+			return fmt.Errorf("client.Download: %w", err)
 		}
 
 		file, err := os.Create(path.Join(targetsPath, book.FileName))

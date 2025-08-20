@@ -8,12 +8,7 @@ import (
 )
 
 func (c *Client) Download(ctx context.Context, uri string) (*Book, error) {
-	req, err := c.newRequest(ctx, http.MethodGet, uri, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := c.do(req, http.StatusOK)
+	resp, err := c.fetch(ctx, uri)
 	if err != nil {
 		return nil, err
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net/http"
 	"regexp"
 	"strconv"
 )
@@ -15,24 +14,19 @@ var (
 )
 
 func (c *Client) Sequence(ctx context.Context, ID uint64) (*Sequence, error) {
-	req, err := c.newRequest(ctx, http.MethodGet, "/sequence/"+strconv.FormatUint(ID, 10), nil)
+	resp, err := c.fetch(ctx, "/sequence/"+strconv.FormatUint(ID, 10))
 	if err != nil {
 		return nil, fmt.Errorf("newRequest: %w", err)
 	}
 
-	page, err := c.do(req, http.StatusOK)
-	if err != nil {
-		return nil, fmt.Errorf("do: %w", err)
-	}
-
-	data, err := io.ReadAll(page.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	defer page.Body.Close()
+	defer resp.Body.Close()
 
 	return &Sequence{
-		Name: rexGroup(rexTitle, data, 1),
-		URLs: rexGroupAll(rexFB2, data, 1),
+		Name:     rexGroup(rexTitle, data, 1),
+		BookURLs: rexGroupAll(rexFB2, data, 1),
 	}, nil
 }
