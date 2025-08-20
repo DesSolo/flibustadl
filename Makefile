@@ -11,3 +11,18 @@ build:
 
 tag:
 	scripts/tag.sh
+
+.prep_bin:
+	mkdir -p ${LOCAL_BIN}
+
+GORELEASER_VERSION=v2.11.2
+
+.install-goreleaser:
+	curl -Ls https://github.com/goreleaser/goreleaser/releases/download/${GORELEASER_VERSION}/goreleaser_Linux_x86_64.tar.gz | tar xvz -C ${LOCAL_BIN} goreleaser
+
+install-deps: \
+	.prep_bin \
+	.install-goreleaser
+
+release:
+	${LOCAL_BIN}/goreleaser release
