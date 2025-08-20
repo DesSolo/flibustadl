@@ -12,6 +12,9 @@ build:
 tag:
 	scripts/tag.sh
 
+tidy:
+	go mod tidy
+
 .prep_bin:
 	mkdir -p ${LOCAL_BIN}
 
