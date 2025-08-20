@@ -27,5 +27,5 @@ install-deps: \
 	.prep_bin \
 	.install-goreleaser
 
-release:
+release: tag
 	${LOCAL_BIN}/goreleaser release --clean
