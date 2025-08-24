@@ -15,7 +15,7 @@ func (c *Client) Author(ctx context.Context, ID uint64) (*Author, error) {
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("io.ReadAll: %w", err)
 	}
 	defer resp.Body.Close()
 

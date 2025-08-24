@@ -2,6 +2,7 @@ package flibusta
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -10,12 +11,12 @@ import (
 func (c *Client) Download(ctx context.Context, uri string) (*Book, error) {
 	resp, err := c.fetch(ctx, uri)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("fetch: %w", err)
 	}
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("io.ReadAll: %w", err)
 	}
 
 	defer resp.Body.Close()

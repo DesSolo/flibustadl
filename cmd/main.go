@@ -106,7 +106,9 @@ func downloadBooks(ctx context.Context, client *flibusta.Client, root string, UR
 			return fmt.Errorf("file.Write: %w", err)
 		}
 
-		file.Close()
+		if err := file.Close(); err != nil {
+			return fmt.Errorf("file.Close: %w", err)
+		}
 	}
 
 	return nil

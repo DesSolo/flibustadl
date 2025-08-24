@@ -24,7 +24,7 @@ func NewClient(url string) *Client {
 func (c *Client) newRequest(ctx context.Context, method, uri string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequestWithContext(ctx, method, c.url+uri, body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("http.NewRequestWithContext: %w", err)
 	}
 
 	return req, nil
@@ -33,11 +33,11 @@ func (c *Client) newRequest(ctx context.Context, method, uri string, body io.Rea
 func (c *Client) do(req *http.Request, validStatusCode int) (*http.Response, error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("client.Do: %w", err)
 	}
 
 	if resp.StatusCode != validStatusCode {
-		return resp, fmt.Errorf("invalid status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("invalid status code: %d", resp.StatusCode)
 	}
 
 	return resp, nil
