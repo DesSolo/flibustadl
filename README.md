@@ -9,6 +9,7 @@ flibustadl https://flibusta.is/a/1206
 Features:
 - Download author
 - Download sequence
+- Download series
 
 Supported options:
 ```bash

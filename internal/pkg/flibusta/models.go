@@ -10,6 +10,11 @@ type Author struct {
 	BookURLs []string
 }
 
+type Series struct {
+	Name     string
+	BookURLs []string
+}
+
 type Book struct {
 	Content  []byte
 	FileName string

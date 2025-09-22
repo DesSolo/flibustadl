@@ -52,9 +52,12 @@ func main() {
 		}
 	case "/sequence":
 		if err := downloadSequence(ctx, flClient, id); err != nil {
-			log.Fatalf("download sequence failed: %v", err)
+			log.Fatalf("failed to download sequence: %v", err)
 		}
-
+	case "/s":
+		if err := downloadSeries(ctx, flClient, id); err != nil {
+			log.Fatalf("failed to download series: %v", err)
+		}
 	default:
 		log.Fatalf("unsupported path: %v", path.Dir(uri.Path))
 	}
@@ -80,6 +83,16 @@ func downloadSequence(ctx context.Context, client *flibusta.Client, sequenceID u
 	slog.InfoContext(ctx, "processing sequence", "name", sequence.Name, "books", len(sequence.BookURLs))
 
 	return downloadBooks(ctx, client, sequence.Name, sequence.BookURLs)
+}
+
+func downloadSeries(ctx context.Context, client *flibusta.Client, seriesID uint64) error {
+	series, err := client.Series(ctx, seriesID)
+	if err != nil {
+		return fmt.Errorf("client.Series: %w", err)
+	}
+
+	slog.InfoContext(ctx, "processing series", "name", series.Name, "books", len(series.BookURLs))
+	return downloadBooks(ctx, client, series.Name, series.BookURLs)
 }
 
 func downloadBooks(ctx context.Context, client *flibusta.Client, root string, URLs []string) error {
