@@ -1,5 +1,7 @@
 package flibusta
 
+import "io"
+
 type Sequence struct {
 	Name     string
 	BookURLs []string
@@ -16,6 +18,6 @@ type Series struct {
 }
 
 type Book struct {
-	Content  []byte
+	Content  io.ReadCloser
 	FileName string
 }

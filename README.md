@@ -3,7 +3,7 @@ Simple cli application for download books from flibusta
 
 Simple usage:
 ```bash
-flibustadl https://flibusta.is/a/1206
+flibustadl http://flibusta.is/a/1206
 ```
 
 Features:
@@ -11,9 +11,13 @@ Features:
 - Download sequence (sequence)
 - Download series (s)
 - Unzip files
+- Await before downloading book
+- Retries
 
 Supported options:
 ```bash
+  -await duration
+        Await interval (default 1s)
   -books string
         Books file path (default "books/")
   -loglevel int

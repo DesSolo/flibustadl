@@ -3,24 +3,30 @@ package flibusta
 import (
 	"context"
 	"fmt"
-	"io"
 	"strconv"
 )
 
 func (c *Client) Series(ctx context.Context, ID uint64) (*Series, error) {
-	resp, err := c.fetch(ctx, "/s/"+strconv.FormatUint(ID, 10))
+	uri := "/s/" + strconv.FormatUint(ID, 10)
+
+	content, err := c.readPage(ctx, uri, 0)
 	if err != nil {
-		return nil, fmt.Errorf("fetch: %w", err)
+		return nil, fmt.Errorf("readPage: %w", err)
 	}
 
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("io.ReadAll: %w", err)
+	booksURLs := rexGroupAll(rexFB2, content, 1)
+
+	for _, page := range totalPages(content) {
+		newPageContent, err := c.readPage(ctx, uri, page)
+		if err != nil {
+			return nil, fmt.Errorf("readPage: %w", err)
+		}
+
+		booksURLs = append(booksURLs, rexGroupAll(rexFB2, newPageContent, 1)...)
 	}
-	defer resp.Body.Close()
 
 	return &Series{
-		Name:     rexGroup(rexTitle, data, 1),
-		BookURLs: rexGroupAll(rexFB2, data, 1),
+		Name:     rexGroup(rexTitle, content, 1),
+		BookURLs: booksURLs,
 	}, nil
 }

@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/url"
 	"os"
+	"time"
 
 	"flibustadl/internal/downloader"
 	"flibustadl/internal/pkg/flibusta"
@@ -17,6 +18,7 @@ var (
 	booksFilePath = "books/"
 	unzipFiles    = true
 	removeZipFile = true
+	awaitInterval = time.Second
 )
 
 func main() {
@@ -24,6 +26,7 @@ func main() {
 	flag.StringVar(&booksFilePath, "books", booksFilePath, "Books file path")
 	flag.BoolVar(&unzipFiles, "unzip", unzipFiles, "Unzip files")
 	flag.BoolVar(&removeZipFile, "remove", removeZipFile, "Remove zip files")
+	flag.DurationVar(&awaitInterval, "await", awaitInterval, "Await interval")
 
 	flag.Parse()
 
@@ -46,6 +49,7 @@ func main() {
 		BooksFilePath:       booksFilePath,
 		ShouldUnzipFiles:    unzipFiles,
 		ShouldRemoveZipFile: removeZipFile,
+		AwaitInterval:       awaitInterval,
 	})
 
 	if err := dl.Download(ctx, target); err != nil {

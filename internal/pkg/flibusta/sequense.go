@@ -4,13 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"regexp"
 	"strconv"
-)
-
-var (
-	rexFB2   = regexp.MustCompile(`<a href="(/b/\d+/fb2)">\(fb2\)</a>`)
-	rexTitle = regexp.MustCompile(`<h1 class="title">([^<]+)</h1>`)
 )
 
 func (c *Client) Sequence(ctx context.Context, ID uint64) (*Sequence, error) {

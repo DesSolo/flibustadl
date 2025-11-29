@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"time"
 
 	"flibustadl/internal/pkg/flibusta"
 )
@@ -96,8 +97,14 @@ func (d *Downloader) downloadBooks(ctx context.Context, root string, URLs []stri
 		return fmt.Errorf("os.MkdirAll: %w", err)
 	}
 
-	for _, uri := range URLs {
-		slog.InfoContext(ctx, "downloading book", "uri", uri, "to", targetsPath)
+	for idx, uri := range URLs {
+		slog.InfoContext(ctx, "downloading book",
+			"uri", uri,
+			"to", targetsPath,
+			"progress", fmt.Sprintf("%d/%d", idx+1, len(URLs)),
+		)
+
+		time.Sleep(d.config.AwaitInterval)
 
 		book, err := d.client.Download(ctx, uri)
 		if err != nil {
@@ -111,12 +118,16 @@ func (d *Downloader) downloadBooks(ctx context.Context, root string, URLs []stri
 			return fmt.Errorf("os.Create: %w", err)
 		}
 
-		if _, err := file.Write(book.Content); err != nil {
-			return fmt.Errorf("file.Write: %w", err)
+		if _, err := io.Copy(file, book.Content); err != nil {
+			return fmt.Errorf("io.Copy: %w", err)
 		}
 
 		if err := file.Close(); err != nil {
 			return fmt.Errorf("file.Close: %w", err)
+		}
+
+		if err := book.Content.Close(); err != nil {
+			return fmt.Errorf("book.Content.Close: %w", err)
 		}
 
 		if !d.config.ShouldUnzipFiles {

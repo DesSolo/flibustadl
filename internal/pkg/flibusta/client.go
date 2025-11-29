@@ -1,12 +1,15 @@
 package flibusta
 
-// <input type="checkbox" id=.*</a>
-
 import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/cenkalti/backoff/v5"
 )
 
 type Client struct {
@@ -50,4 +53,41 @@ func (c *Client) fetch(ctx context.Context, uri string) (*http.Response, error) 
 	}
 
 	return c.do(req, http.StatusOK)
+}
+
+func (c *Client) fetchWithRetry(ctx context.Context, uri string) (*http.Response, error) {
+	operation := func() (*http.Response, error) {
+		return c.fetch(ctx, uri)
+	}
+
+	return backoff.Retry(ctx, operation,
+		backoff.WithBackOff(backoff.NewExponentialBackOff()),
+		backoff.WithNotify(func(err error, duration time.Duration) {
+			slog.WarnContext(ctx, "backoff.Retry",
+				"duration", duration,
+				"err", err,
+			)
+		}),
+	)
+}
+
+func (c *Client) readPage(ctx context.Context, uri string, page int) ([]byte, error) {
+	if page > 0 {
+		uri += "?page=" + strconv.Itoa(page)
+	}
+
+	slog.DebugContext(ctx, "reading page", slog.String("uri", uri))
+
+	resp, err := c.fetch(ctx, uri)
+	if err != nil {
+		return nil, fmt.Errorf("fetch: %w", err)
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("io.ReadAll: %w", err)
+	}
+	defer resp.Body.Close()
+
+	return data, nil
 }
